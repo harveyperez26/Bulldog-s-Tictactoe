@@ -1,119 +1,131 @@
-import tkinter #tk-interface (graphical user interface library)
-def set_tile(row, column):
-    global curr_player
+import tkinter
 
-    if (game_over):
-        return
-    
-    if board[row][column]["text"] != "":
-        #already taken spot
-        return
-    
-    board[row][column]["text"] = curr_player #mark the board
-    if curr_player == playerO: #switch player
-        curr_player = playerX
-    else:
-        curr_player = playerO
-    label["text"] = curr_player+"'s turn"
-
-    #check winner
-    check_winner()
-
-def check_winner():
-    global turns, game_over
-    turns += 1
-
-    #Horizontally check 3 rows
-    for row in range(3):
-        if (board[row][0]["text"] == board[row][1]["text"] == board[row][2]["text"]
-            and board[row][0]["text"] != ""):
-            label.config(text=board[row][0]["text"]+" is the winner!", foreground=color_gold)
-            for column in range(3):
-                board[row][column].config(foreground=color_gold, background=color_red)
-            game_over = True
-            return
-    
-    #vertical check 3 rows
-    for column in range(3):
-        if (board[0][column]["text"] == board[1][column]["text"] == board[2][column]["text"]
-            and board[0][column]["text"] != ""):
-            label.config(text=board[0][column]["text"]+" is the winner!", foreground=color_gold)
-            for row in range(3):
-                board[row][column].config(foreground=color_gold, background=color_red)
-            game_over = True
-            return
-        
-    #diagonally check 3 rows:
-        if (board[0][0]["text"] == board[1][1]["text"] == board[2][2]["text"]
-            and board[0][0]["text"] != ""):
-            label.config(text=board[0][0]["text"]+" is the winner!", foreground=color_gold)
-            for i in range(3):
-                board[i][i].config(foreground=color_gold, background=color_red)
-            game_over = True
-            return
-    #antidiagonally check 3 rows
-        if (board[0][2]["text"] == board[1][1]["text"] == board[2][0]["text"]
-            and board[0][2]["text"] != ""):
-            label.config(text=board[0][2]["text"]+" is the winner!", foreground=color_gold)
-            board[0][2].config(foreground=color_gold, background=color_red)
-            board[1][1].config(foreground=color_gold, background=color_red)
-            board[2][0].config(foreground=color_gold, background=color_red)
-            game_over = True
-            return
-        #tie
-        if(turns == 9):
-            game_over = True
-            label.config(text="Tie!", foreground=color_gold, background=color_red)
-            
-def new_game():
-    global turns, game_over
-    turns = 0
-    game_over = False
-    label.config(text=curr_player+"'s turn", foreground=color_gold)
-     
-    for row in range(3):
-        for column in range(3):
-            board[row][column].config(text="", foreground=color_gold, background=color_navyblue)
-
-#game setup
+# Initialize players and scores
 playerX = "X"
 playerO = "O"
 curr_player = playerX
-board = [[0, 0, 0],
-         [0, 0, 0],
-         [0, 0, 0]]
+scoreX = 0
+scoreO = 0
 
+# Initialize game variables
+board = [["", "", ""],
+         ["", "", ""],
+         ["", "", ""]]
+
+turns = 0
+game_over = False
+
+# GUI Colors
 color_blue = "#0000FF"
 color_gold = "#FFD700"
 color_navyblue = "#000435"
 color_red = "#FF0000"
 color_Lblue = "#ADD8E6"
 
-turns = 0
-game_over = False
+# Function to set tile and switch turns
+def set_tile(row, column):
+    global curr_player, turns
 
-#window setup
-window = tkinter.Tk() #create the game window
-window.title("BULLDOG'S TICTACTOE")
+    if game_over:
+        return
+    
+    if board[row][column]["text"] != "":
+        return
+    
+    board[row][column]["text"] = curr_player
+
+    check_winner()
+
+    if not game_over:
+        curr_player = playerO if curr_player == playerX else playerX
+        label.config(text=curr_player + "'s turn")
+    turns += 1
+
+def check_winner():
+    global game_over, scoreX, scoreO
+
+    # Check rows, columns, and diagonals
+    for row in range(3):
+        if board[row][0]["text"] == board[row][1]["text"] == board[row][2]["text"] != "":
+            highlight_winner([(row, 0), (row, 1), (row, 2)])
+            end_game(board[row][0]["text"])
+            return
+    
+    for column in range(3):
+        if board[0][column]["text"] == board[1][column]["text"] == board[2][column]["text"] != "":
+            highlight_winner([(0, column), (1, column), (2, column)])
+            end_game(board[0][column]["text"])
+            return
+
+    if board[0][0]["text"] == board[1][1]["text"] == board[2][2]["text"] != "":
+        highlight_winner([(0, 0), (1, 1), (2, 2)])
+        end_game(board[0][0]["text"])
+        return
+
+    if board[0][2]["text"] == board[1][1]["text"] == board[2][0]["text"] != "":
+        highlight_winner([(0, 2), (1, 1), (2, 0)])
+        end_game(board[0][2]["text"])
+        return
+
+    if turns == 8:
+        label.config(text="Tie!", foreground=color_gold)
+        game_over = True
+
+def highlight_winner(winning_coords):
+    for row, column in winning_coords:
+        board[row][column].config(background=color_red)
+
+def end_game(winner):
+    global game_over, scoreX, scoreO
+
+    label.config(text=winner + " is the winner!", foreground=color_gold)
+    if winner == playerX:
+        scoreX += 1
+    else:
+        scoreO += 1
+    score_label.config(text=f"Score\nX: {scoreX}\nO: {scoreO}")
+    game_over = True
+
+def new_game():
+    global turns, game_over, curr_player
+    turns = 0
+    game_over = False
+    curr_player = playerX
+    label.config(text=curr_player + "'s turn", foreground=color_gold)
+
+    for row in range(3):
+        for column in range(3):
+            board[row][column].config(text="", foreground=color_gold, background=color_navyblue)
+
+# GUI setup
+window = tkinter.Tk()
+window.title("BulldogsTTT 🐶 (tictactoe)")
 window.resizable(False, False)
 
 frame = tkinter.Frame(window)
-label = tkinter.Label(frame, text=curr_player+"'s turn", font=("Consolas", 20), background=color_navyblue,
-                      foreground="gold")
-label.grid(row=0,column=0, columnspan=3, sticky="we")
+label = tkinter.Label(frame, text=curr_player + "'s turn", font=("Consolas", 20),
+                      background=color_navyblue, foreground=color_gold)
+label.grid(row=0, column=0, columnspan=3, sticky="we")
+
+score_label = tkinter.Label(frame, text=f"Score\nX: {scoreX}\nO: {scoreO}", font=("Consolas", 14),
+                            background=color_navyblue, foreground=color_gold)
+score_label.grid(row=1, column=0, columnspan=3, sticky="we")
+
+board = [[None]*3 for _ in range(3)]
 for row in range(3):
     for column in range(3):
         board[row][column] = tkinter.Button(frame, text="", font=("Consolas", 50, "bold"),
                                             background=color_navyblue, foreground=color_gold, width=4, height=1,
                                             command=lambda row=row, column=column: set_tile(row, column))
-        board[row][column].grid(row=row+1, column=column)
+        board[row][column].grid(row=row+2, column=column)
 
-button = tkinter.Button(frame, text="restart", font=("Consolas", 20), background=color_navyblue,
+button = tkinter.Button(frame, text="New Game", font=("Consolas", 20), background=color_navyblue,
                          foreground=color_gold, command=new_game)
-button.grid(row=4, column=0, columnspan=3, sticky="we")
+button.grid(row=5, column=0, columnspan=3, sticky="we")
+
 frame.pack()
 
-#center the window
+# Center the window
 window.update()
 window_width = window.winfo_width()
 window_height = window.winfo_height()
@@ -123,8 +135,6 @@ screen_height = window.winfo_screenheight()
 window_x = int((screen_width/2) - (window_width/2))
 window_y = int((screen_height/2) - (window_height/2))
 
-#forat "(w)x(h)+(x)+(y)"
 window.geometry(f"{window_width}x{window_height}+{window_x}+{window_y}")
 
 window.mainloop()
-
