@@ -8,7 +8,8 @@ The game is designed using python programming language and to be played by two p
 3. Copy the whole source code and paste it VSC.
 4. Then press run button and the window of the game would pop-up and you can now play the Bulldog's tictactoe game.
 
-![image](https://github.com/user-attachments/assets/a9d92f6f-bdc9-464e-b2ec-c532a6c7bd93)
+![image](https://github.com/user-attachments/assets/6045b6b7-fb8b-44e2-8f6a-e4ebd1f648f5)
+
 
 **Python Version**
 
